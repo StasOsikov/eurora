@@ -2,7 +2,7 @@ package com.eurora.api.service;
 
 import com.eurora.api.Service;
 import com.eurora.api.ServiceType;
-import com.eurora.api.entities.request.CustomsCalculatorRequest;
+import com.eurora.api.entities.request.CustomsDutiesCalculatorRequest;
 import com.eurora.api.entities.response.CustomCalculatorResponse;
 import com.eurora.api.entities.response.error.ErrorMessageResponse;
 import okhttp3.ResponseBody;
@@ -22,19 +22,19 @@ public interface CustomCalculatorService {
             "Content-Type: application/json;charset=UTF-8"
     })
     @POST("customs-calculator/v1/shopping-cart")
-    Call<List<CustomCalculatorResponse>> getUserDutiesResponse(@Header("X-Auth-Token") String key, @Body List<CustomsCalculatorRequest> customsCalculatorRequest);
+    Call<List<CustomCalculatorResponse>> getUserDutiesResponse(@Header("X-Auth-Token") String key, @Body List<CustomsDutiesCalculatorRequest> customsDutiesCalculatorRequest);
 
     @Headers({
             "Accept: application/json",
             "Content-Type: application/json;charset=UTF-8",
     })
     @POST("customs-calculator/v1/shopping-cart")
-    Call<ResponseBody> getStatusCode(@Header("X-Auth-Token") String key, @Body List<CustomsCalculatorRequest> customsCalculatorRequest);
+    Call<ResponseBody> getStatusCode(@Header("X-Auth-Token") String key, @Body List<CustomsDutiesCalculatorRequest> customsDutiesCalculatorRequest);
 
     @Headers({
             "Accept: application/json",
             "Content-Type: application/json;charset=UTF-8",
     })
     @POST("customs-calculator/v1/shopping-cart")
-    Call<ErrorMessageResponse> getErrorMessage(@Header("X-Auth-Token") String key, @Body List<CustomsCalculatorRequest> customsCalculatorRequest);
+    Call<ErrorMessageResponse> getErrorMessage(@Header("X-Auth-Token") String key, @Body List<CustomsDutiesCalculatorRequest> customsDutiesCalculatorRequest);
 }

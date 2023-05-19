@@ -20,7 +20,7 @@ import java.util.List;
 @Generated("com.robohorse.robopojogenerator")
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomsCalculatorRequest {
+public class CustomsDutiesCalculatorRequest {
 
     @Builder.Default
     @SerializedName("externalId")

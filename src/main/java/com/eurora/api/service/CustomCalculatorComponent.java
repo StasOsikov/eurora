@@ -1,15 +1,18 @@
 package com.eurora.api.service;
 
 import com.eurora.api.ServiceBuilder;
-import com.eurora.api.entities.request.CustomsCalculatorRequest;
+import com.eurora.api.entities.request.CustomsDutiesCalculatorRequest;
 import com.eurora.api.entities.response.CustomCalculatorResponse;
 import com.eurora.api.entities.response.error.ErrorMessageResponse;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.lang.reflect.Type;
 import java.util.List;
 
 @Log4j2
@@ -28,23 +31,25 @@ public class CustomCalculatorComponent {
     }
 
     @SneakyThrows
-    public List<CustomCalculatorResponse> getUserDuties(String key, List<CustomsCalculatorRequest> customsCalculatorRequest) {
+    public List<CustomCalculatorResponse> getUserDuties(String key, List<CustomsDutiesCalculatorRequest> customsDutiesCalculatorRequest) {
         return calculatorService
-                .getUserDutiesResponse(key, customsCalculatorRequest)
+                .getUserDutiesResponse(key, customsDutiesCalculatorRequest)
                 .execute()
                 .body();
     }
 
     @SneakyThrows
-    public Integer getStatusCode(String key, List<CustomsCalculatorRequest> customsCalculatorRequest) {
-        return calculatorService.getStatusCode(key, customsCalculatorRequest).execute().code();
+    public Integer getStatusCode(String key, List<CustomsDutiesCalculatorRequest> customsDutiesCalculatorRequest) {
+        return calculatorService.getStatusCode(key, customsDutiesCalculatorRequest).execute().code();
     }
 
     @SneakyThrows
-    public ErrorMessageResponse getUserErrorMessage(String key, List<CustomsCalculatorRequest> customsCalculatorRequest) {
-        return calculatorService
-                .getErrorMessage(key, customsCalculatorRequest)
+    public ErrorMessageResponse getUserErrorMessage(String key, List<CustomsDutiesCalculatorRequest> customsDutiesCalculatorRequest) {
+        Gson gson = new Gson();
+        Type type = new TypeToken<ErrorMessageResponse>() {}.getType();
+        return gson.fromJson(calculatorService
+                .getErrorMessage(key, customsDutiesCalculatorRequest)
                 .execute()
-                .body();
+                .errorBody().charStream(),type);
     }
 }

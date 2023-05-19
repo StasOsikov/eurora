@@ -1,6 +1,6 @@
 package com.eurora.api;
 
-import com.eurora.api.entities.request.CustomsCalculatorRequest;
+import com.eurora.api.entities.request.CustomsDutiesCalculatorRequest;
 import com.eurora.api.entities.response.CustomCalculatorResponse;
 import com.eurora.api.entities.response.error.ErrorMessageResponse;
 import com.eurora.api.extension.Smoke;
@@ -40,7 +40,7 @@ class CustomDutiesCalculatorTest {
     @ParameterizedTest
     @CsvSource(value = {":401", "\n:401", "6d8eef2a-4e03-4b7b-b25b-b18f0c84e016:401", "test:401", "401:401"}, delimiter = ':')
     void shouldReturnUnauthorizedStatusUsingIncorrectApiKey(String apiKey, int code){
-        CustomsCalculatorRequest customsCalculator = CustomsCalculatorRequest.builder().build();
+        CustomsDutiesCalculatorRequest customsCalculator = CustomsDutiesCalculatorRequest.builder().build();
         Integer statusCode = customCalculatorComponent.getStatusCode(apiKey, getCustomsCalculatorRequest(customsCalculator));
         assertEquals((int) statusCode, code);
     }
@@ -49,9 +49,11 @@ class CustomDutiesCalculatorTest {
     @DisplayName("Violation constraint should be sent in a response if required field is empty or missed")
     @ParameterizedTest
     @MethodSource("getUserData")
-    void shouldReturnErrorMessageIfRequiredFieldIsMissed(CustomsCalculatorRequest customsCalculator, String type, String message) {
+    void shouldReturnErrorMessageIfRequiredFieldIsMissed(CustomsDutiesCalculatorRequest customsCalculator, String type, String message) {
+        Integer code = customCalculatorComponent.getStatusCode(getKey(), getCustomsCalculatorRequest(customsCalculator));
+        assertEquals(400, code);
         ErrorMessageResponse errorMessageResponse = customCalculatorComponent.getUserErrorMessage(getKey(), getCustomsCalculatorRequest(customsCalculator));
-        Assertions.assertAll("Error message has correct message",
+        Assertions.assertAll("Error message has correct content",
                 () -> assertEquals(errorMessageResponse.getType(), type),
                 () -> assertTrue(errorMessageResponse.getRows().stream().anyMatch(m -> m.getMessage().contains(message))));
     }
@@ -61,7 +63,7 @@ class CustomDutiesCalculatorTest {
     @ParameterizedTest
     @CsvSource({ "200, USD", "200, EUR"})
     void shouldReturnValidSuccessStatusCode(int statusCode, String currency){
-        CustomsCalculatorRequest customsCalculator = CustomsCalculatorRequest.builder().orderCurrency(currency).build();
+        CustomsDutiesCalculatorRequest customsCalculator = CustomsDutiesCalculatorRequest.builder().orderCurrency(currency).build();
         Integer code = customCalculatorComponent.getStatusCode(getKey(), getCustomsCalculatorRequest(customsCalculator));
         assertEquals(statusCode, code);
     }
@@ -71,7 +73,7 @@ class CustomDutiesCalculatorTest {
     @ParameterizedTest
     @CsvSource({ "1, USD", "1, EUR"})
     void shouldReturnNonNullGoodsResponse(int size, String currency){
-        CustomsCalculatorRequest customsCalculator = CustomsCalculatorRequest.builder().orderCurrency(currency).build();
+        CustomsDutiesCalculatorRequest customsCalculator = CustomsDutiesCalculatorRequest.builder().orderCurrency(currency).build();
         List<CustomCalculatorResponse> customCalculatorResponse = customCalculatorComponent.getUserDuties(getKey(), getCustomsCalculatorRequest(customsCalculator));
         assertEquals(customCalculatorResponse.get(0).getGoods().size(), size);
     }
@@ -81,7 +83,7 @@ class CustomDutiesCalculatorTest {
     @ParameterizedTest
     @CsvSource({ "US", "UA"})
     void shouldReturnCorrectCountry(String country){
-        CustomsCalculatorRequest customsCalculator = CustomsCalculatorRequest.builder().originCountry(country).build();
+        CustomsDutiesCalculatorRequest customsCalculator = CustomsDutiesCalculatorRequest.builder().originCountry(country).build();
         List<CustomCalculatorResponse> customCalculatorResponse = customCalculatorComponent.getUserDuties(getKey(), getCustomsCalculatorRequest(customsCalculator));
         assertEquals(customCalculatorResponse.get(0).getOriginCountry(), country);
     }
@@ -91,26 +93,26 @@ class CustomDutiesCalculatorTest {
     @ParameterizedTest
     @CsvSource({ "Fidget spinners, 0.0"})
     void shouldReturnValidGoodsValues(String description, double dutyRate) {
-        CustomsCalculatorRequest customsCalculator = CustomsCalculatorRequest.builder().build();
+        CustomsDutiesCalculatorRequest customsCalculator = CustomsDutiesCalculatorRequest.builder().build();
         List<CustomCalculatorResponse> customCalculatorResponse = customCalculatorComponent.getUserDuties(getKey(), getCustomsCalculatorRequest(customsCalculator));
         Assertions.assertAll("Valid goods response",
                 () -> assertTrue(customCalculatorResponse.get(0).getGoods().stream().anyMatch(item -> item.getDescription().equals(description))),
                 () -> assertTrue(customCalculatorResponse.get(0).getGoods().stream().anyMatch(item -> item.getDuty().equals(dutyRate))));
     }
 
-    private List<CustomsCalculatorRequest> getCustomsCalculatorRequest(CustomsCalculatorRequest customsCalculator){
-        List<CustomsCalculatorRequest> customsCalculatorRequest = new ArrayList<>(1);
-        addToList(customsCalculatorRequest, Stream.of(customsCalculator));
-        return customsCalculatorRequest;
+    private List<CustomsDutiesCalculatorRequest> getCustomsCalculatorRequest(CustomsDutiesCalculatorRequest customsCalculator){
+        List<CustomsDutiesCalculatorRequest> customsDutiesCalculatorRequest = new ArrayList<>(1);
+        addToList(customsDutiesCalculatorRequest, Stream.of(customsCalculator));
+        return customsDutiesCalculatorRequest;
     }
 
     private static Stream<Arguments> getUserData() {
-        return Stream.of(Arguments.of(CustomsCalculatorRequest.builder().orderCurrency("").build(), "CONSTRAINT_VIOLATION", "size must be between 3 and 3"),
-                Arguments.of(CustomsCalculatorRequest.builder().originCountry("").build(), "CONSTRAINT_VIOLATION", "size must be between 2 and 2"),
-                Arguments.of(CustomsCalculatorRequest.builder().destinationCountry("").build(), "CONSTRAINT_VIOLATION", "size must be between 2 and 2"),
-                Arguments.of(CustomsCalculatorRequest.builder().destinationRegion("").build(), "CONSTRAINT_VIOLATION", "region code not found"),
-                Arguments.of(CustomsCalculatorRequest.builder().additionalValueShare("").build(), "ARGUMENT_NOT_VALID", "Value not recognized (), please refer to specification for available values."),
-                Arguments.of(CustomsCalculatorRequest.builder().transactionModel("").build(), "ARGUMENT_NOT_VALID", "Value not recognized (), please refer to specification for available values."));
+        return Stream.of(Arguments.of(CustomsDutiesCalculatorRequest.builder().orderCurrency("").build(), "CONSTRAINT_VIOLATION", "size must be between 3 and 3"),
+                Arguments.of(CustomsDutiesCalculatorRequest.builder().originCountry("").build(), "CONSTRAINT_VIOLATION", "size must be between 2 and 2"),
+                Arguments.of(CustomsDutiesCalculatorRequest.builder().destinationCountry("").build(), "CONSTRAINT_VIOLATION", "size must be between 2 and 2"),
+                Arguments.of(CustomsDutiesCalculatorRequest.builder().destinationRegion("").build(), "CONSTRAINT_VIOLATION", "region code not found"),
+                Arguments.of(CustomsDutiesCalculatorRequest.builder().additionalValueShare("").build(), "ARGUMENT_NOT_VALID", "Value not recognized (), please refer to specification for available values."),
+                Arguments.of(CustomsDutiesCalculatorRequest.builder().transactionModel("").build(), "ARGUMENT_NOT_VALID", "Value not recognized (), please refer to specification for available values."));
     }
 
     private <T> List<T> addToList(List<T> target, Stream<T> source) {

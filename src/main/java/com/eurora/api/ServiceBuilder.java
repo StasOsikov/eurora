@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
+import okhttp3.logging.HttpLoggingInterceptor.Level;
 import org.springframework.stereotype.Component;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -43,9 +44,11 @@ public class ServiceBuilder {
                 .baseUrl(service.type().getBaseUrl())
                 .client(okHttpClientBuilder
                         .addInterceptor(new HttpLoggingInterceptor(log::info)
-                                .setLevel(HttpLoggingInterceptor.Level.BODY))
+                                .setLevel(Level.BODY)
+                                .setLevel(Level.HEADERS)
+                                .setLevel(Level.BASIC))
                         .addInterceptor(new BasicHeadersInterceptor())
-                        .followRedirects(false)
+                        .followRedirects(true)
                         .build())
                 .addConverterFactory(GsonConverterFactory.create(
                         new GsonBuilder()
