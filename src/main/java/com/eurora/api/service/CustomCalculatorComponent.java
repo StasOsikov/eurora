@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Objects;
 
 @Log4j2
 @Component
@@ -47,9 +48,9 @@ public class CustomCalculatorComponent {
     public ErrorMessageResponse getUserErrorMessage(String key, List<CustomsDutiesCalculatorRequest> customsDutiesCalculatorRequest) {
         Gson gson = new Gson();
         Type type = new TypeToken<ErrorMessageResponse>() {}.getType();
-        return gson.fromJson(calculatorService
+        return gson.fromJson(Objects.requireNonNull(calculatorService
                 .getErrorMessage(key, customsDutiesCalculatorRequest)
                 .execute()
-                .errorBody().charStream(),type);
+                .errorBody()).charStream(),type);
     }
 }
